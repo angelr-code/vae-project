@@ -60,6 +60,7 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+*.out
 
 # Flask stuff:
 instance/
@@ -172,3 +173,23 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Model weights / outputs
+*.pt
+*.pth
+*.h5
+
+# Compressed / temp files
+*.zip
+*.tar.gz
+*.tmp
+*.bak
+
+.vscode/
+
+# MacOS
+.DS\_Store
+
+#Windows
+desktop.ini
+Thumbs.db
