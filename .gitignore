@@ -194,4 +194,5 @@ cython_debug/
 desktop.ini
 Thumbs.db
 
-notebooks/data/celeba/*.jpg
+
+notebooks\data\celeba\img_align_celeba\*.jpg
