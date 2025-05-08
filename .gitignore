@@ -188,11 +188,13 @@ cython_debug/
 .vscode/
 
 # MacOS
-.DS\_Store
+.DS_Store
 
 #Windows
 desktop.ini
 Thumbs.db
 
-
-notebooks\data\celeba\img_align_celeba\*.jpg
+# Dataset CelebA
+notebooks/data/celeba/
+data/celeba/
+notebooks/data/celeba/img_align_celeba/*.jpg
