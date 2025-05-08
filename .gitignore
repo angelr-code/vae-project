@@ -193,3 +193,5 @@ cython_debug/
 #Windows
 desktop.ini
 Thumbs.db
+
+notebooks/data/celeba/*.jpg
