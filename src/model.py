@@ -2,6 +2,26 @@ import torch
 from torch import nn
 
 class Encoder(nn.Module):
+    """
+    Encoder network for the Variational Autoencoder (VAE).
+
+    Maps the input data into the parameters of a Gaussian distribution
+    in the latent space.
+
+    It inherits from the torch nn Module.
+
+    Parameters
+    ----------
+    input_dim: int
+        input dimension of the VAE.
+
+    hidden_dims: int list
+        list containing the hidden layers dimensions.
+
+    latent_dim: int 
+        latent space dimension of the VAE.
+    """
+
     def __init__(self, input_dim, hidden_dims, latent_dim):
         super().__init__()
         
@@ -13,16 +33,55 @@ class Encoder(nn.Module):
             in_dim = h_dim
         
         self.encoder = nn.Sequential(*layers)
-        self.fc_mu = nn.Linear(hidden_dims[-1], latent_dim)
-        self.fc_logvar = nn.Linear(hidden_dims[-1], latent_dim)
+        self.hidden2mu = nn.Linear(hidden_dims[-1], latent_dim)
+        self.hidden2logvar = nn.Linear(hidden_dims[-1], latent_dim) 
 
-        def forward(self, x):
-            h = self.encoder(x)
-            mu = self.fc_mu(h)
-            logvar = self.fc_logvar(h)
-            return mu, logvar
+        # We map the encoder result to the variance logarithm because some vector components might be negative.
+        # Here, taking exponential in logvar we will always get a postive variance vector.
+
+    def forward(self, x):
+        """
+        Forward pass through the encoder.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor of shape (batch_size, input_dim).
+
+        Returns
+        -------
+        mu : torch.Tensor
+            Mean of the approximate posterior.
+
+        logvar : torch.Tensor
+            Log-variance of the approximate posterior.
+        """
+
+        h = self.encoder(x)
+        mu = self.hidden2mu(h)
+        logvar = self.hidden2logvar(h)
+        return mu, logvar
         
 class Decoder(nn.Module):
+    """
+    Decoder network for the Variational Autoencoder (VAE).
+
+    Maps the latent space representation into the data reconstruction (output).
+
+    It inherits from the torch nn Module.
+
+    Parameters
+    ----------
+    latent_dim: int 
+        latent space dimension.
+
+    hidden_dims: int list
+        list containing the hidden layers dimensions.
+
+    output_dim: int
+        output dimension of the VAE.
+    """
+
     def __init__(self, latent_dim, hidden_dims, output_dim):
         super().__init__()
         layers = []
@@ -34,26 +93,100 @@ class Decoder(nn.Module):
             in_dim = h_dim
         
         self.decoder = nn.Sequential(*layers)
-        self.fc_out = nn.Linear(hidden_dims[0], output_dim)
+        self.hidden2out = nn.Linear(hidden_dims[0], output_dim)
 
     def forward(self, z):
-        h = self.decoder(z)
-        x_reconstructed = torch.sigmoid(self.fc_out(h))
-        return x_reconstructed
+        """
+        Forward pass through the decoder.
 
-class VAE(nn.Module):
+        Parameters
+        ----------
+        z : torch.Tensor
+            Input tensor of shape (batch_size, latent_dim).
+
+        Returns
+        -------
+        x_hat : torch.Tensor
+            Output tensor. 
+        """
+
+        h = self.decoder(z)
+        x_hat = torch.sigmoid(self.hidden2out(h))
+        return x_hat
+    
+
+class VAE(nn.Module):    
+    """
+    Variational Autoencoder (VAE) Architecture.
+    The approximate posterior is a factorized multidimensional Gaussian distribution.
+
+    Maps the input data into its reconstruction. It combines the Encoder 
+    and Decoder Modules.
+
+    It inherits from the torch nn Module.
+
+    Parameters
+    ----------
+    input_dim: int
+        input dimension of the VAE
+
+    hidden_dims: int list
+        list containing the hidden layers dimensions
+
+    latent_dim: int 
+        latent space dimension    
+    """
+
     def __init__(self, input_dim, hidden_dims, latent_dim):
         super().__init__()
         self.encoder = Encoder(input_dim, hidden_dims, latent_dim)
-        self.decoder = Decoder(latent_dim, hidden_dims, input_dim)
+        self.decoder = Decoder(latent_dim, hidden_dims, input_dim) # In the VAE the input dimension mathces the output dimension
 
     def reparameterize(self, mu, logvar):
+        """
+        Samples from the latent space using the reparametrization trick.
+
+        Parameters
+        ----------
+        mu : torch.Tensor
+            Mean of the approximate posterior.
+
+        logvar : torch.Tensor
+            Log-variance of the approximate posterior.  
+        
+        Returns
+        -------
+        torch.Tensor
+            Latent space samples.
+
+        """
+
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
     def forward(self, x):
+        """
+        Forward pass through the Variational Autoencoder (VAE).
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor of shape (batch_size, input_dim).
+
+        Returns
+        -------
+        x_hat : torch.Tensor
+            Data reconstruction (output). 
+
+        mu : torch.Tensor
+            Mean of the approximate posterior.
+
+        logvar : torch.Tensor
+            Log-variance of the approximate posterior.
+        """
+
         mu, logvar = self.encoder(x)
         z = self.reparameterize(mu, logvar)
-        x_reconstructed = self.decoder(z)
-        return x_reconstructed, mu, logvar
+        x_hat = self.decoder(z)
+        return x_hat, mu, logvar
