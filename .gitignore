@@ -201,3 +201,4 @@ notebooks/data/celeba/img_align_celeba/*.jpg
 
 #Dataset MRI
 notebooks/data/MRI_brain_tumor/
+data/MRI_brain_tumor/

@@ -5,3 +5,9 @@ mnist_configs = {
         'hidden_dims': [256,128,64,32],
         'latent_dim': 2
 }
+
+brain_configs = {
+        'input_dim': 65536,
+        'hidden_dims': [1024,512,256],
+        'latent_dim': 64
+}

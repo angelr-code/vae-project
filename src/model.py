@@ -80,9 +80,13 @@ class Decoder(nn.Module):
 
     output_dim: int
         output dimension of the VAE.
+
+    f_out: str
+        Indicates the output layer activation.
+        Must be 'sigmoid' or 'tanh'.
     """
 
-    def __init__(self, latent_dim, hidden_dims, output_dim):
+    def __init__(self, latent_dim, hidden_dims, output_dim, f_out):
         super().__init__()
         layers = []
 
@@ -94,6 +98,13 @@ class Decoder(nn.Module):
         
         self.decoder = nn.Sequential(*layers)
         self.hidden2out = nn.Linear(hidden_dims[0], output_dim)
+
+        #If activation value is unexpected we raise an error.
+        if f_out != 'sigmoid' and f_out != 'tanh':
+            raise ValueError("The output activation must be either 'sigmoid' or 'tanh'")
+        
+        self.f_out = f_out
+
 
     def forward(self, z):
         """
@@ -111,7 +122,12 @@ class Decoder(nn.Module):
         """
 
         h = self.decoder(z)
-        x_hat = torch.sigmoid(self.hidden2out(h))
+
+        if self.f_out == 'sigmoid':
+            x_hat = torch.sigmoid(self.hidden2out(h))
+        else:
+            x_hat = torch.tanh(self.hidden2out(h))
+            
         return x_hat
     
 
@@ -134,13 +150,17 @@ class VAE(nn.Module):
         list containing the hidden layers dimensions
 
     latent_dim: int 
-        latent space dimension    
+        latent space dimension  
+            
+    f_out: str
+        Indicates the output layer activation.
+        Must be 'sigmoid' or 'tanh'.  
     """
 
-    def __init__(self, input_dim, hidden_dims, latent_dim):
+    def __init__(self, input_dim, hidden_dims, latent_dim, f_out):
         super().__init__()
         self.encoder = Encoder(input_dim, hidden_dims, latent_dim)
-        self.decoder = Decoder(latent_dim, hidden_dims, input_dim) # In the VAE the input dimension matches the output dimension
+        self.decoder = Decoder(latent_dim, hidden_dims, input_dim, f_out) # In the VAE the input dimension matches the output dimension
 
     def reparameterize(self, mu, logvar):
         """
