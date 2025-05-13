@@ -36,8 +36,8 @@ class Encoder(nn.Module):
         self.hidden2mu = nn.Linear(hidden_dims[-1], latent_dim)
         self.hidden2logvar = nn.Linear(hidden_dims[-1], latent_dim) 
 
-        # We map the encoder result to the variance logarithm because some vector components might be negative.
-        # Here, taking exponential in logvar we will always get a postive variance vector.
+        # We model the log-variance to ensure the variance remains positive 
+        # after applying the exponential function.
 
     def forward(self, x):
         """
@@ -140,7 +140,7 @@ class VAE(nn.Module):
     def __init__(self, input_dim, hidden_dims, latent_dim):
         super().__init__()
         self.encoder = Encoder(input_dim, hidden_dims, latent_dim)
-        self.decoder = Decoder(latent_dim, hidden_dims, input_dim) # In the VAE the input dimension mathces the output dimension
+        self.decoder = Decoder(latent_dim, hidden_dims, input_dim) # In the VAE the input dimension matches the output dimension
 
     def reparameterize(self, mu, logvar):
         """

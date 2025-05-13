@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional as F
 
-def loss(x, x_hat, mu, logvar):
+def loss(x, x_hat, mu, logvar, beta):
     """
     Computes the Variational Autoencoder (VAE) negative ELBO given datapoints and their reconstruction.
     Thus, minimizing this expresion will be equivalent to maximizing the ELBO.
@@ -21,7 +21,10 @@ def loss(x, x_hat, mu, logvar):
             Mean of the approximate posterior (batch_size, latent dim).
 
         logvar : torch.Tensor
-            Log-variance of the approximate posterior (batch_size, latent dim).  
+            Log-variance of the approximate posterior (batch_size, latent dim).
+
+        beta: float
+            Used to control the influenced of KL divergence in the loss function expression  .
 
     Returns
     -------
@@ -29,11 +32,9 @@ def loss(x, x_hat, mu, logvar):
     """
     
     KL = - 0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())     # KL[q(z|x) || p(z)]
-    MSE = F.mse_loss(x_hat, x.view(-1, 12288), reduction='sum') # Reconstruction Loss. Mean squared error
+    reconstruction_error = F.binary_cross_entropy(x_hat, x.view(-1, 784), reduction='sum') # Reconstruction Loss. Binary Cross Entropy
 
-    # ELBO = - KL + Reconstruction Error
-
-    return  KL - MSE
+    return beta*KL + reconstruction_error, KL, reconstruction_error
 
 def train(model, dataloader, optimizer, device, epochs = 20, print_loss = True):
     """
@@ -63,20 +64,26 @@ def train(model, dataloader, optimizer, device, epochs = 20, print_loss = True):
 
     model.to(device)
     model.train() # Training mode
+    
+    beta = 1/epochs
+    max_beta = 4.0
 
     for epoch in range(epochs):
         train_loss = 0.0
         
         # We iterate through the mini-batches
         for _, data in enumerate(dataloader):  
-            data = data.to(device)
+            x, _ = data #In some datasets like MNIST there are labels, we ignore them in the VAE
+            x = x.to(device)
             optimizer.zero_grad()   # Sets all loss function gradients to zero
-            x_hat, mu, logvar = model(data)
-            loss_value = loss(data, x_hat, mu, logvar)
+            x_hat, mu, logvar = model(x)
+            loss_value, kl, reconstruction_error = loss(x, x_hat, mu, logvar, beta)
             loss_value.backward() # Loss Backprop. New gradients
             optimizer.step()    # Updates the model parameters following the chosen optimizer scheme
             train_loss += loss_value.item() # The loss is in torch.Tensor format, we transform it to float
+
+        beta = min((epoch+1)/epochs, 1.0) * max_beta # Beta parameter annealing
         
         if print_loss:
-            print(f'Epoch {epoch + 1}, Loss: {train_loss / len(dataloader.dataset)}')
+            print(f'Epoch {epoch + 1}, Loss: {train_loss / len(dataloader.dataset)}, KL: {kl}, Reconstruction Error: {reconstruction_error}')
         

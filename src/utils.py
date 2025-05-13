@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 import torchvision
 from torchvision import transforms
+import torch
+import ipywidgets as widgets
+from matplotlib.animation import FuncAnimation
+from IPython.display import display, HTML
 
 
 

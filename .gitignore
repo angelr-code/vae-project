@@ -198,3 +198,6 @@ Thumbs.db
 notebooks/data/celeba/
 data/celeba/
 notebooks/data/celeba/img_align_celeba/*.jpg
+
+#Dataset MRI
+data/MRI_brain_tumor/
