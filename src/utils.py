@@ -24,6 +24,11 @@ class CeleADataset(Dataset):
     root_dir: str
         Path to the directory containing the dataset images.
     
+    image_files: str list
+        List of image files to be selected. Useful when filtering by attributes.
+        If None, gets the entire dataset.
+        Default is None. 
+    
     transforms: callable, optional  
         Transformation methods applied to raw image data (usually a composition
         of torchvision.transforms). Default is None.
@@ -31,14 +36,20 @@ class CeleADataset(Dataset):
 
     # A torch custom Dataset class must always implement the three functions: __init__, __len__, and __getitem__.
 
-    def __init__(self, root_dir, transform=None):
+    def __init__(self, root_dir, image_files = None, transform = None):
         self.root_dir = root_dir
         self.transform = transform
-        self.image_files = [f for f in os.listdir(root_dir) if f.endswith(".jpg")]  # Avoids getting corrupted files.
 
+        if image_files:
+            self.image_files = [os.path.join(self.root_dir, f) for f in image_files] # Gets the selected files
+        else:
+            self.image_files = [f for f in os.listdir(root_dir) if f.endswith(".jpg")]  # Avoids getting corrupted files.
+
+    
     def __len__(self):
         return len(self.image_files)
 
+    
     def __getitem__(self, idx):
         """Gets an Image from the dataset at a given index"""
 
@@ -62,7 +73,7 @@ class CeleADataset(Dataset):
     
 
 
-def load_celeba(root_dir, batch_size = 64, image_size = 64, num_workers = 4):
+def load_celeba(root_dir, image_files = None, batch_size = 128, image_size = 128, num_workers = 0):
     """
     Creates the CelebA torch DataLoader.
 
@@ -71,15 +82,20 @@ def load_celeba(root_dir, batch_size = 64, image_size = 64, num_workers = 4):
     root_dir: str
         Path to the directory containing the dataset images.
 
+    image_files: str list
+        List of image files to be selected. Useful when filtering by attributes.
+        If None, gets the entire dataset.
+        Default is None.
+
     batch_size: int
-        Size of the training mini-batches. Default is 64.
+        Size of the training mini-batches. Default is 128.
 
     image_size: int 
-        Image size resolution in pixels (img_size x img_size). Default is 64.
+        Image size resolution in pixels (img_size x img_size). Default is 128.
     
     num_workers: int 
         Number of paralel subprocesses used for data loading.
-        Higher values may speed up data loading but use more CPU resources. Default is 4. 
+        Higher values may speed up data loading but use more CPU resources. Default is 0. 
 
     Returns
     -------
@@ -95,7 +111,7 @@ def load_celeba(root_dir, batch_size = 64, image_size = 64, num_workers = 4):
         transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)) # We normalize the inputs to [-1, 1]. The 3 dimensions are because of the 3 RGB channels.
     ])
 
-    dataset = CeleADataset(root_dir = root_dir, transform = transform)
+    dataset = CeleADataset(root_dir = root_dir, image_files = image_files, transform = transform)
 
     dataloader = DataLoader(
         dataset,

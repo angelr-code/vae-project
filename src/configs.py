@@ -11,3 +11,9 @@ brain_configs = {
         'hidden_dims': [1024,512,256],
         'latent_dim': 64
 }
+
+celeba_configs = {
+    'input_dim': 49152,
+    'hidden_dims': [2048, 1024, 512],
+    'latent_dim': 256
+}
