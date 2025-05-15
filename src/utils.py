@@ -242,7 +242,7 @@ class BrainTumorDataset(Dataset):
         return image
     
     
-def load_brain(root_dir, batch_size = 64, image_size = 256, num_workers = 4):
+def load_brain(root_dir, batch_size = 128, image_size = 256, num_workers = 0):
     """
     Creates the Brain Tumor MRI Dataset torch DataLoader.
 
@@ -252,14 +252,14 @@ def load_brain(root_dir, batch_size = 64, image_size = 256, num_workers = 4):
         Path to the directory containing the dataset images.
 
     batch_size: int
-        Size of the training mini-batches. Default is 64.
+        Size of the training mini-batches. Default is 128.
 
     image_size: int 
         Image size resolution in pixels (img_size x img_size). Default is 128.
     
     num_workers: int 
         Number of paralel subprocesses used for data loading.
-        Higher values may speed up data loading but use more CPU resources. Default is 4. 
+        Higher values may speed up data loading but use more CPU resources. Default is 0. 
 
     Returns
     -------
@@ -273,7 +273,7 @@ def load_brain(root_dir, batch_size = 64, image_size = 256, num_workers = 4):
         transforms.Grayscale(num_output_channels=1),
         transforms.GaussianBlur(kernel_size=5, sigma=(0.1,0.2)),    # We apply GaussianBlur for better reconstruction at skull borders
         transforms.ToTensor(),
-        transforms.Normalize(mean=0.5, std=0.5),    #Applying normalization to set all values between [-1, 1]
+        transforms.Normalize(mean=0.5, std=0.5),    # Applies normalization to set all values between [-1, 1]
     ])
 
     dataset = BrainTumorDataset(root_dir = root_dir, transform = transform)
@@ -330,14 +330,13 @@ def visualize_brain_examples(dataloader, num_examples,  img_size = 256,  fig_siz
     plt.figure(figsize=fig_size)
     plt.imshow(grid_np, cmap='gray')
     plt.axis('off')
-    plt.title('Brain Examples')
     plt.show()
 
 
 
-def visualize_heatmap(image, model, device, threshold, img_size = (256,256), cmap = 'hot'):
+def visualize_heatmap(image, model, device, threshold, img_size = (256,256), cmap = 'hot', download = None):
     """
-    Given an Image and trained model outputs a heatmap of anomalous regions.
+    Given an Image and trained model outputs a heatmap of reconstruction error.
 
     image: PIL.Image.Image
         Brain Image.
@@ -356,6 +355,9 @@ def visualize_heatmap(image, model, device, threshold, img_size = (256,256), cma
     
     cmap: str
         Matplotlib heatmap type. Default is 'hot'
+
+    downmload: str
+        Given a string downloads the plot in pdf format with that file name. Default is None.
     """
 
     transform = transforms.Compose([
@@ -399,17 +401,17 @@ def visualize_heatmap(image, model, device, threshold, img_size = (256,256), cma
 
     plt.subplot(1, 2, 1)
     plt.imshow(image_np, cmap='gray')
-    plt.title("Imagen original")
     plt.axis('off')
 
-    # Imagen + heatmap
+    # heatmap
     plt.subplot(1, 2, 2)
     plt.imshow(background.squeeze().cpu().numpy(), cmap='gray')
     plt.imshow(masked_error, cmap=cmap, alpha=0.6)  
-    plt.title("Mapa de calor del error")
     plt.axis('off')
 
     plt.tight_layout()
+    if download:
+        plt.savefig(download, format = 'pdf', bbox_inches="tight")
     plt.show()
     
 

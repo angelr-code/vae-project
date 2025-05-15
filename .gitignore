@@ -204,4 +204,4 @@ notebooks/data/MRI_brain_tumor/
 data/MRI_brain_tumor/
 
 # Dataset MNIST
-notebooks/data/MNIST
+notebooks/data/MNIST/
