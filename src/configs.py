@@ -2,7 +2,7 @@
 
 mnist_configs = {
         'input_dim': 784,
-        'hidden_dims': [256,128,64,32],
+        'hidden_dims': [512, 256],
         'latent_dim': 2
 }
 

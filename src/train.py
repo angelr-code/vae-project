@@ -17,7 +17,7 @@ def loss(x, x_hat, mu, logvar, beta, input_dim, f_out):
             Input tensor of shape (batch_size, input_dim).
 
         x_hat: torch.Tensor
-            VAE x reconstructionm (output) (bath_size, input_dim).
+            VAE x reconstruction (output) (bath_size, input_dim).
 
         mu : torch.Tensor
             Mean of the approximate posterior (batch_size, latent dim).
@@ -26,7 +26,7 @@ def loss(x, x_hat, mu, logvar, beta, input_dim, f_out):
             Log-variance of the approximate posterior (batch_size, latent dim).
 
         beta: float
-            Used to control the influenced of KL divergence in the loss function expression.
+            Used to control the influence of KL divergence in the loss function expression.
 
         input_dim: int
             Dimension of the flattened image tensors.
@@ -55,7 +55,7 @@ def loss(x, x_hat, mu, logvar, beta, input_dim, f_out):
 
 
 
-def train(model, dataloader, optimizer, device, f_out, epochs = 20, print_loss = True, labels = False):
+def train(model, dataloader, optimizer, device, f_out, max_beta = 4, epochs = 20, print_loss = True, labels = False):
     """
     Trains the Variational Autoencoder (VAE) maximizing the ELBO.
 
@@ -78,8 +78,11 @@ def train(model, dataloader, optimizer, device, f_out, epochs = 20, print_loss =
             Indicates the output layer activation.
             Must be 'sigmoid' or 'tanh'.
 
+        max_beta: float
+            Maximum beta used in the ELBO. Default is 4.
+
         epochs: int 
-            Number of training epochs. Default: 20.
+            Number of training epochs. Default is 20.
 
         print_loss: bool 
             If True, shows the training loss per epoch. Default: True
@@ -96,7 +99,6 @@ def train(model, dataloader, optimizer, device, f_out, epochs = 20, print_loss =
     model.train() # Training mode
     
     beta = 1/epochs
-    max_beta = 4.0
 
     for epoch in range(epochs):
         train_loss = 0.0
@@ -105,7 +107,7 @@ def train(model, dataloader, optimizer, device, f_out, epochs = 20, print_loss =
         for _, data in enumerate(dataloader):  
             
             if labels:
-                x, _ = data #In some datasets like MNIST there are labels, we ignore them in the VAE.
+                x, _ = data # In some datasets like MNIST there are labels, we ignore them in the VAE.
             else:
                 x = data
 
@@ -120,5 +122,5 @@ def train(model, dataloader, optimizer, device, f_out, epochs = 20, print_loss =
         beta = min((epoch+1)/epochs, 1.0) * max_beta # Beta parameter annealing
         
         if print_loss:
-            print(f'Epoch {epoch + 1} -----> Loss: {train_loss / len(dataloader.dataset)} | KL: {kl} | Reconstruction Error: {reconstruction_error}')
+            print(f'Epoch {epoch + 1} -----> -ELBO: {train_loss / len(dataloader.dataset)} | KL: {kl} | Reconstruction Error: {reconstruction_error}')
         

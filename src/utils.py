@@ -1,7 +1,9 @@
 import os
 from PIL import Image
 import numpy as np 
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from torch.utils.data import Dataset, DataLoader
 import torchvision
 from torchvision import transforms
@@ -408,4 +410,115 @@ def visualize_heatmap(image, model, device, threshold, img_size = (256,256), cma
     plt.axis('off')
 
     plt.tight_layout()
+    plt.show()
+    
+
+#MNIST 
+
+def latent_visualization(z, labels, download = False):
+    """
+    Prints a VAE 2-D latent space.
+
+    Parameters
+    ----------
+    z: torch.Tensor
+        A torch.Tensor matrix containing the latent encodings
+        of datapoints.
+    
+    labels: torch.Tensor
+        Contains the labels assigned to each datapoint.
+
+    dowload: bool
+        If true downloads the plot in a pdf format. Default: False.
+    """
+
+    df = pd.DataFrame({
+        'z1': z[:,0],
+        'z2': z[:,1],
+        'label': labels
+    })
+
+    #This is a personalized color palette for the different digits latent points
+    palette = [
+        "#2E4057",
+        "#7A9A76",  
+        "#336B87",
+        "#C6D8D3",
+        "#696969", 
+        "#D72631",  
+        "#3F7CAC",  
+        "#6B4226",  
+        "#8D99AE", 
+        "#06402B"   
+    ]
+
+    sns.set_palette(palette)
+    sns.set(style="dark")
+    plt.figure(figsize=(7, 6))
+
+    sns.scatterplot(
+        x='z1', y='z2', hue='label', palette=palette, data=df,
+        s=30, alpha=0.6, edgecolor='none', linewidth=0
+    )
+
+    plt.xlabel('')
+    plt.ylabel('')
+    plt.legend(title='Digit', loc='upper right', frameon=True, fontsize='small', title_fontsize='large')
+    plt.tight_layout()
+
+    if download:
+        plt.savefig("latent_space_mnist.pdf", format = "pdf", bbox_inches="tight")
+
+    plt.show()
+
+
+
+
+def print_manifold(model, device, start = -3, end = 4, grid_size = 20, download = False):
+    """
+    Visualizes the latent manifold of a VAE by decoding a regular 2D grid of latent space coordinates.
+
+    Parameters
+    ----------
+    model: torch.nn.Module
+        VAE trained model.
+    
+    device: torch.device
+        device to be used
+    
+    start: float
+        grid start position. Default is -3
+    
+    end: float 
+        grid end position. Default is 4.
+
+    grid_size: int
+        number of images per row and column. Default is 20
+
+    download: bool
+        If true downloads the plot in a pdf format. Default: False.
+    """
+    
+    # Generate the grid
+    n = grid_size
+    z_values = torch.linspace(start, end, n)
+
+    image_size = 28
+    canvas = torch.zeros(image_size * n, image_size * n)
+
+    model.eval()
+    with torch.no_grad():
+        for i, z1 in enumerate(z_values):
+            for j, z2 in enumerate(z_values):
+                z = torch.tensor([[z1, z2]], dtype=torch.float32).to(device)
+                x_hat = model.decoder(z).cpu().view(image_size, image_size)
+                canvas[(n - i - 1)*image_size:(n - i)*image_size, j*image_size:(j+1)*image_size] = x_hat
+
+    plt.figure(figsize=(8, 8))
+    plt.imshow(canvas, cmap="gray")
+    plt.axis('off')
+
+    if download:
+        plt.savefig("manifold_mnist.pdf", format = "pdf", bbox_inches="tight")
+
     plt.show()

@@ -36,7 +36,7 @@ class Encoder(nn.Module):
         self.hidden2mu = nn.Linear(hidden_dims[-1], latent_dim)
         self.hidden2logvar = nn.Linear(hidden_dims[-1], latent_dim) 
 
-        # We model the log-variance to ensure the variance remains positive 
+        # We model the log-variance to ensure a postive variance 
         # after applying the exponential function.
 
     def forward(self, x):
