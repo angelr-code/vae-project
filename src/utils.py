@@ -193,10 +193,34 @@ def visualize_celeba_examples(dataloader, num_examples, img_size = 64,  fig_size
     plt.figure(figsize=fig_size)
     plt.imshow(grid_np)
     plt.axis('off')
-    plt.title('CelebA Examples')
     plt.show()
 
+def image_reconstruction(root, model, device):
+    image = Image.open(root).convert("RGB")
 
+    # We apply the same loading transformations.
+    transform = transforms.Compose([
+        transforms.Resize(128),
+        transforms.CenterCrop(128),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)) 
+    ])
+
+    x = transform(image).to(device)
+
+    x = x.view(-1)
+
+    x_hat, _, _ = model(x)
+
+    x_hat = denormalize(x_hat)
+
+    with torch.no_grad():
+        x_hat = x_hat.view(3, 128, 128).cpu().numpy()
+
+    x_hat = np.transpose(x_hat, (1,2,0))
+
+    plt.imshow(x_hat)
+    plt.axis('off')
 
 ########### Anomaly Detection
 

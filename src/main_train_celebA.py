@@ -14,7 +14,7 @@ def main():
     model = VAE(**celeba_configs, f_out='tanh').to(device)
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
-    train(model, celeba_loader, optimizer, device, f_out='tanh', epochs=100)
+    train(model, celeba_loader, optimizer, device, f_out='tanh', epochs=100, max_beta = 2)
 
     torch.save(model.state_dict(), 'vae_celeba_trained.pth')
 
