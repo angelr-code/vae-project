@@ -222,6 +222,92 @@ def image_reconstruction(root, model, device):
     plt.imshow(x_hat)
     plt.axis('off')
 
+
+def latent_interpolation(model, device, directions, img_root, blond, smile, male, glasses, young, beard):
+    """
+    Applies latent space interpolation on a given face image using a trained VAE model and learned attribute directions.
+
+    This function encodes an input image into the latent space using the VAE encoder, modifies the latent vector 
+    by interpolating along multiple attribute directions (blond hair, smile, male, etc), and decodes both the 
+    original and modified latent vectors to later produce the corresponding face images.
+
+    Parameters
+    ----------
+        model: torch.nn.Module)
+            Trained VAE model.
+
+        device: torch.device 
+            Device on which computation is being performed.
+
+        directions: dict 
+            Dictionary of learned latent directions for each facial attribute.
+
+        img_root: str 
+            Path to the input image to be interpolated.
+
+        blond: float 
+            Interpolation factor for the blond attribute.
+
+        smile: float
+            Interpolation factor for the smile attribute.
+
+        male: float 
+            Interpolation factor for the male attribute.
+
+        glasses: float
+            Interpolation factor for the glasses attribute.
+
+        young: float
+            Interpolation factor for the young attribute.
+
+        beard: float 
+            Interpolation factor for the beard attribute.
+
+    Returns
+    -------
+        Tuple[np.ndarray, np.ndarray]: 
+            - The original reconstructed image as a NumPy array.
+            - The modified image with interpolated attributes as a NumPy array.
+    """
+  
+    # Image, transformations and pass through encoder
+    image = Image.open(img_root).convert("RGB")
+
+    transform = transforms.Compose([
+        transforms.Resize(128),
+        transforms.CenterCrop(128),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)) 
+    ])
+    x = transform(image).to(device)
+    x = x.view(-1)
+
+    mu, logvar = model.encoder(x)
+    std = torch.exp(0.5 * logvar).to(device)
+    eps = torch.randn_like(std).to(device)
+    z = mu + eps * std
+
+    # Original reconstruction to numpy
+    z_original = z.clone()
+    x_hat_original = model.decoder(z_original)
+    x_hat_original = x_hat_original.view(3, 128, 128)
+    x_hat_original = x_hat_original * 0.5 + 0.5  # denormalize
+    original_np = x_hat_original.detach().cpu().numpy().transpose(1, 2, 0)
+
+    #modfied reconstruction
+    alpha_values = [blond, smile, male, glasses, young, beard]
+    z_mod = z.clone()
+    
+    for i, dir_name in enumerate(directions.keys()):
+        z_mod = z_mod + alpha_values[i] * directions[dir_name].to(device)
+
+    x_hat = model.decoder(z_mod)
+    x_hat = x_hat.view(3, 128, 128)
+    x_hat = x_hat * 0.5 + 0.5  # denormalize
+    mod_np = x_hat.detach().cpu().numpy().transpose(1, 2, 0)
+
+    return original_np, mod_np
+
 ########### Anomaly Detection
 
 class BrainTumorDataset(Dataset):
