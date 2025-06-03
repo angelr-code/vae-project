@@ -19,10 +19,10 @@ def loss(x, x_hat, mu, logvar, beta, input_dim, f_out):
         x_hat: torch.Tensor
             VAE x reconstruction (output) (bath_size, input_dim).
 
-        mu : torch.Tensor
+        mu: torch.Tensor
             Mean of the approximate posterior (batch_size, latent dim).
 
-        logvar : torch.Tensor
+        logvar: torch.Tensor
             Log-variance of the approximate posterior (batch_size, latent dim).
 
         beta: float
