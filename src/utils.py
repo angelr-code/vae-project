@@ -8,13 +8,10 @@ from torch.utils.data import Dataset, DataLoader
 import torchvision
 from torchvision import transforms
 import torch
-import ipywidgets as widgets
-from matplotlib.animation import FuncAnimation
-from IPython.display import display, HTML
 
 
 
-# CelebA dataset PyTorch load utils.
+##### CelebA #####
 
 class CeleADataset(Dataset):
     """
@@ -151,7 +148,7 @@ def denormalize(tensor):
         return (tensor * 0.5) + 0.5
     
 
-def visualize_celeba_examples(dataloader, num_examples, img_size = 64,  fig_size = (15,15)):
+def visualize_celeba_examples(dataloader, num_examples, img_size = 64,  fig_size = (15,15), download = False):
     """
     Function to visualize a small subset of CelebA dataset samples.
 
@@ -167,7 +164,10 @@ def visualize_celeba_examples(dataloader, num_examples, img_size = 64,  fig_size
         Image size resolution in pixels (img_size x img_size). Default is 64.
 
     fig_size: tuple
-        Plot size. Default is (15,15).    
+        Plot size. Default is (15,15).
+
+    download: bool
+        If True downloads the examples to pdf. Default is False.    
     """
 
     # Gets a minibatch and num_examples elements from it
@@ -193,9 +193,30 @@ def visualize_celeba_examples(dataloader, num_examples, img_size = 64,  fig_size
     plt.figure(figsize=fig_size)
     plt.imshow(grid_np)
     plt.axis('off')
+
+    if download:
+        plt.savefig('celeba_examples.pdf', format = 'pdf', bbox_inches = 'tight')
+
     plt.show()
 
-def image_reconstruction(root, model, device):
+def image_reconstruction(root, model, device, download = None):
+    """
+    Given a face image it shows its VAE reconstruction.
+
+    Parameters
+    ----------
+    root: str
+        Image root
+    
+    model: torch.nn.Module
+        Trained VAE model
+    
+    device: torch.device 
+        Device on which computation is being performed.
+    
+    downmload: str
+        Given a string downloads the plot in pdf format with that file name. Default is None.
+    """
     image = Image.open(root).convert("RGB")
 
     # We apply the same loading transformations.
@@ -222,8 +243,13 @@ def image_reconstruction(root, model, device):
     plt.imshow(x_hat)
     plt.axis('off')
 
+    if download:
+        plt.savefig(download, format = 'pdf', bbox_inches="tight")
 
-def latent_interpolation(model, device, directions, img_root, blond, smile, male, glasses, young, beard):
+    plt.show()
+
+
+def latent_interpolation(model, device, directions, img_root, smile, male, blond, beard, young, glasses):
     """
     Applies latent space interpolation on a given face image using a trained VAE model and learned attribute directions.
 
@@ -233,41 +259,42 @@ def latent_interpolation(model, device, directions, img_root, blond, smile, male
 
     Parameters
     ----------
-        model: torch.nn.Module)
-            Trained VAE model.
+    model: torch.nn.Module
+        Trained VAE model.
 
-        device: torch.device 
-            Device on which computation is being performed.
+    device: torch.device 
+        Device on which computation is being performed.
 
-        directions: dict 
-            Dictionary of learned latent directions for each facial attribute.
+    directions: dict 
+        Dictionary of learned latent directions for each facial attribute.
 
-        img_root: str 
-            Path to the input image to be interpolated.
+    img_root: str 
+        Path to the input image to be interpolated.
 
-        blond: float 
-            Interpolation factor for the blond attribute.
+    smile: float
+        Interpolation factor for the smile attribute.
 
-        smile: float
-            Interpolation factor for the smile attribute.
+    male: float 
+        Interpolation factor for the male attribute.
 
-        male: float 
-            Interpolation factor for the male attribute.
+    blond: float 
+        Interpolation factor for the blond attribute.
+        
+    beard: float 
+        Interpolation factor for the beard attribute.
 
-        glasses: float
-            Interpolation factor for the glasses attribute.
+    young: float
+        Interpolation factor for the young attribute.
 
-        young: float
-            Interpolation factor for the young attribute.
+    glasses: float
+        Interpolation factor for the glasses attribute.
 
-        beard: float 
-            Interpolation factor for the beard attribute.
 
     Returns
     -------
-        Tuple[np.ndarray, np.ndarray]: 
-            - The original reconstructed image as a NumPy array.
-            - The modified image with interpolated attributes as a NumPy array.
+    Tuple[np.ndarray, np.ndarray]: 
+        - The original reconstructed image as a NumPy array.
+        - The modified image with interpolated attributes as a NumPy array.
     """
   
     # Image, transformations and pass through encoder
@@ -295,7 +322,7 @@ def latent_interpolation(model, device, directions, img_root, blond, smile, male
     original_np = x_hat_original.detach().cpu().numpy().transpose(1, 2, 0)
 
     #modfied reconstruction
-    alpha_values = [blond, smile, male, glasses, young, beard]
+    alpha_values = [smile, male, blond, beard, young, glasses]
     z_mod = z.clone()
     
     for i, dir_name in enumerate(directions.keys()):
@@ -308,7 +335,7 @@ def latent_interpolation(model, device, directions, img_root, blond, smile, male
 
     return original_np, mod_np
 
-########### Anomaly Detection
+##### Anomaly Detection #####
 
 class BrainTumorDataset(Dataset):
     """
@@ -500,7 +527,7 @@ def visualize_heatmap(image, model, device, threshold, img_size = (256,256), cma
     error_map = (original_tensor - x_hat).squeeze().cpu().numpy() ** 2
 
     image_np = denormalize(original_tensor)
-    image_np = original_tensor.squeeze().cpu().numpy()
+    image_np = image_np.squeeze().cpu().numpy()
 
     mask = (image_np < threshold).astype(float)
     masked_error = error_map * mask
@@ -525,7 +552,7 @@ def visualize_heatmap(image, model, device, threshold, img_size = (256,256), cma
     plt.show()
     
 
-#MNIST 
+##### MNIST #####
 
 def latent_visualization(z, labels, download = False):
     """
