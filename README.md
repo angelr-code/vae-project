@@ -1,7 +1,13 @@
-# Variational Autoencoder Application Project
+---
 
-This repository is part of my Bachelor's thesis in Mathematics, focused on Variational Autoencoders (VAEs) and probabilistic machine learning. It will be used for the 5th and last chapter called "Practical Implementations". The rest of the document consists of Variational Inference and VAEs statistical theory and definitions as well as a probabilistic approximation theorem and many more results. 
+## Project Overview
 
-The repository is divided into the folders
+This repository contains the implementation of a Variational Autoencoder (VAE) using PyTorch. It was developed as part of my undergraduate final thesis (TFG). It implements a VAE in PyTorch for **[insert goal: image generation / latent manipulation / anomaly detection / latent space exploration / etc.]**. It includes:
 
-- `src`: contains the repository source code which consists of the model implementation in pytorch 
+- Encoder and decoder architectures (`src/model.py`)
+- Configurable training via `src/train.py`
+- Reusable helper functions (`utils/`)
+- Applications to different problems (`notebooks/`)
+- Model Configurations depending on application (`src/configs.py`)
+
+---

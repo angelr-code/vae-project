@@ -1,4 +1,6 @@
 numpy
 torch
 torchvision
-gdown
+PIL
+seaborn
+matplotlib
