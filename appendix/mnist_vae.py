@@ -1,15 +1,9 @@
-import sys 
-import os 
-
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, ROOT_DIR)
-
-
 import torch
 from torch import optim
 from torch.utils.data import DataLoader 
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
+from pathlib import Path
 from src.model import VAE
 from src.configs import mnist_configs
 from src.train import train
@@ -27,7 +21,10 @@ transform = transforms.Compose([
     transforms.Lambda(lambda x: x.view(-1)) # Flat input
 ])
 
-mnist = datasets.MNIST(root= r"C:\Users\Ángel\Documents\GitHub\vae-project\notebooks\data",
+ROOT_DIR = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT_DIR / "data"
+
+mnist = datasets.MNIST(root= DATA_DIR,
                        download = False,
                        train = True,
                        transform = transform)
@@ -47,7 +44,7 @@ train(model,train_loader,optimizer,device, max_beta = 4, epochs=50, f_out='sigmo
 
 '''Latent Space visualization'''
 
-mnist_test = datasets.MNIST(root = r"C:\Users\Ángel\Documents\GitHub\vae-project\notebooks\data",
+mnist_test = datasets.MNIST(root = DATA_DIR,
                             download=False,
                             train=False,
                             transform=transform)
@@ -101,7 +98,7 @@ transform = transforms.Compose([
     transforms.Lambda(lambda x:add_gaussian_noise(x))
 ])
 
-mnist_noise = datasets.MNIST(root = r"C:\Users\Ángel\Documents\GitHub\vae-project\notebooks\data",
+mnist_noise = datasets.MNIST(root = DATA_DIR,
                             download=False,
                             train=False,
                             transform=transform)
@@ -151,7 +148,7 @@ transform = transforms.Compose([
     transforms.Lambda(lambda x:salt_and_pepper(x, amount = 0.15))
 ])
 
-mnist_noise = datasets.MNIST(root = r"C:\Users\Ángel\Documents\GitHub\vae-project\notebooks\data",
+mnist_noise = datasets.MNIST(root = DATA_DIR,
                             download=False,
                             train=False,
                             transform=transform)
