@@ -199,6 +199,9 @@ notebooks/data/celeba/
 data/celeba/
 notebooks/data/celeba/img_align_celeba/*.jpg
 
+#Dataset MNIST
+data/MNIST/
+
 #Dataset MRI
 notebooks/data/MRI_brain_tumor/
 data/MRI_brain_tumor/
