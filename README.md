@@ -10,17 +10,17 @@ VAEs are powerful generative models that learn a probabilistic representation of
   <img src="outputs/images/vae_architecture.png" width="700"/>
 </p>
 
-*Figure 1: VAE architecture. The latent space has $q(\textbf{z}|\textbf{x}) = \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\sigma}\mathbf{I})$ as variational distribution*. Figure made with TikZ.
+*Figure 1:* VAE architecture. The latent space has $q(\textbf{z}|\textbf{x}) = \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\sigma}\mathbf{I})$ as variational distribution. Figure made with TikZ.
 
 The connections between the encoder and decoder are learned through a statistical method called reparameterization trick, allowing backpropagation through the stochastic latent space. The VAE is trained to maximize the Evidence Lower Bound (ELBO), which balances reconstruction accuracy and latent space regularization. This is based on the Variational Inference framework, a method of approximate bayesian inference that approximates the true posterior distribution of latent variables given observed data $p(\textbf{z}|\textbf{x})$.
 
 This deep and probabilistic arquitecture allows VAEs to connect a probabilistic latent space whose distribution is under our control with the data space, usually high-dimensional and complex, enabling powerful applications in generative modeling and data manipulation.
 
 <p align="center">
-  <img src="outputs/images/xspacezspace.png" width="450"/>
+  <img src="outputs/images/xspacezspace.png" width="400"/>
 </p>
 
-*Figure 2: The VAE connects the data space with the latent space $\textbf{z}$, allowing us to manipulate and generate new data points in the data space from the latent space*. Figure extracted from *[An Introduction to Variational Autoencoders](https://doi.org/10.1561/2200000056)*.
+*Figure 2*: The VAE connects the data space with the latent space $\textbf{z}$, allowing us to manipulate and generate new data points in the data space from the latent space. Figure extracted from [An Introduction to Variational Autoencoders](https://doi.org/10.1561/2200000056).
 
 To learn more about Variational Inference, VAEs, and the reparameterization trick, I recommend reading [My Bachelor's Thesis](./bachelors_thesis.pdf), available in English in this repository. I honestly believe it is a great introduction to the topic, as it covers the theory in a clear and intuitive way, with a final focus on practical applications and implementations.
 
@@ -67,11 +67,11 @@ The project uses `pyproject.toml` to manage dependencies and packaging needed.
 
 
 <p align="center">
-  <img src="outputs/images/latent_space_mnist.png" alt="Latent Space MNIST" width="25%" style="margin-right: 10px;"/>
-  <img src="outputs/images/manifold_mnist.png" alt="Manifold MNIST" width="21.5%"/>
+  <img src="outputs/images/latent_space_mnist.png" alt="Latent Space MNIST" width="48.5%" style="margin-right: 10px;"/>
+  <img src="outputs/images/manifold_mnist.png" alt="Manifold MNIST" width="41.5%"/>
 </p>
 
-*Figure 3: Left: Latent space of MNIST digits, showing clusters of similar digits. Right: Manifold of MNIST digits, illustrating smooth transitions between classes.*
+*Figure 3:* Left: Latent space of MNIST digits, showing clusters of similar digits. Right: Manifold of MNIST digits, illustrating smooth transitions between classes.
 
 In this images we can see how the VAE learns a meaningful latent space where similar digits are close together, allowing us to explore and generate new digits by sampling from the latent space and going through the decoder. 
 
@@ -82,11 +82,11 @@ The continuous nature of the latent space allows us to generate new digits by in
 This is an application that can be done by standard Autoencoders if trained with corrupted data. However, without being explicitly trained on corrupted data, the VAE reconstructs noisy or incomplete digits, leveraging its robust and probabilistic latent representation.
 
 <p align="center">
-  <img src="outputs/images/noise.png" alt="Denoising MNIST" width="25%" style="margin-right: 10px;"/>
-  <img src="outputs/images/pepper.png" alt="Inpainting MNIST" width="25%"/>
+  <img src="outputs/images/noise.png" alt="Denoising MNIST" width="35%" style="margin-right: 10px;"/>
+  <img src="outputs/images/pepper.png" alt="Inpainting MNIST" width="35%"/>
 </p>
 
-*Figure 4: Left: Denoising MNIST digits by reconstructing noisy inputs. Right: Inpainting MNIST digits by reconstructing missing parts.*
+*Figure 4:* Left: Denoising MNIST digits by reconstructing noisy inputs. Right: Inpainting MNIST digits by reconstructing missing parts.
 
 
 ### 3. **Anomaly Detection on Brain MRIs**
@@ -96,18 +96,18 @@ This is an application that can be done by standard Autoencoders if trained with
 - Created reconstruction error heatmaps to visually highlight the areas of deviation.
 
 <p align="center">
-  <img src="outputs/images/meningioma.png" alt="Meningioma" width="25%" style="margin-right: 10px;"/>
-  <img src="outputs/images/pituitary.png" alt="Pituitary" width="25%"/>
+  <img src="outputs/images/meningioma.png" alt="Meningioma" width="35%" style="margin-right: 10px;"/>
+  <img src="outputs/images/pituitary.png" alt="Pituitary" width="35%"/>
 </p>
 
-*Figure 5: Left: Meningioma tumor detection. Right: Pituitary tumor detection.*
+*Figure 5:* Left: Meningioma tumor detection. Right: Pituitary tumor detection.
 
 <p align="center">
-  <img src="outputs/images/glioma.png" alt="Glioma" width="25%" style="margin-right: 10px;"/>
-  <img src="outputs/images/notumor.png" alt="No Tumor" width="25%"/>
+  <img src="outputs/images/glioma.png" alt="Glioma" width="35%" style="margin-right: 10px;"/>
+  <img src="outputs/images/notumor.png" alt="No Tumor" width="35%"/>
 </p>
 
-*Figure 6: Left: Glioma tumor detection. Right: Healthy brain MRI with no tumor.*
+*Figure 6:* Left: Glioma tumor detection. Right: Healthy brain MRI with no tumor.
 
 This application demonstrates the VAE's ability to learn a normal distribution of healthy brain structures, allowing it to detect anomalies by identifying deviations from this learned distribution. The reconstruction error heatmaps provide a visual representation of the areas where the model detects significant differences, failing to reconstruct these areas in the input image accurately.
 
@@ -120,11 +120,20 @@ A Variational Autoencoder (VAE) was trained on the CelebA dataset (~200k celebri
   <img src="outputs/images/test_sample_reconstructed.png" width="20%" style="margin-right: 20px;">
 </p>
 
-*Figure 7: Image from the test set (left) and its reconstructed version by the trained VAE (right).*
+*Figure 7:* Image from the test set (left) and its reconstructed version by the trained VAE (right).
 
 This reconstruction illustrates how VAEs have generative limitations in more complex tasks compared to diffusion models. However, VAEs remain valuable tools and even complements of diffusion models for controlled editing, thanks to their efficiency and interpretable latent representations to learn semantic structures.
 
-For example, by calculating the difference between the latent means of smiling and non-smiling images, a vector $\mathbf{z}_{\text{smile}}$ is obtained. Given the latent representation $\textbf{z}$ of an image that has passed through the encoder, if a controlled translation $\textbf{z}^* = \textbf{z} + \alpha\textbf{z}_{\text{smile}}$ is applied, it allows adding ($\alpha > 0$) or removing ($\alpha < 0$) its smile. By modifying the latent encoding and computing the result through the decoder, the desired result will be obtained applied to the image. The next Figure shows some modifications applied to the evaluation example previously shown.
+For example, by calculating the difference between the latent means of smiling and non-smiling images, a vector **z<sub>smile</sub>** is obtained. Given the latent representation **z** of an image (i.e., the output of the encoder), applying a controlled translation:
+
+**z<sup>*</sup> = z + α · z<sub>smile</sub>**
+
+allows us to add (if α > 0) or remove (if α < 0) the smile from the image.
+
+By modifying the latent encoding in this way and passing it through the decoder, we obtain the edited image with the desired semantic change.
+
+The next figure shows some of these modifications applied to the evaluation example previously shown.
+
 
 <p align="center">
   <img src="outputs/images/no_smile.png" width="20%" style="margin-right: 20px;">
